@@ -30,9 +30,9 @@ OCamlProgram($(CREATE_TEMPLATES), create_templates create_templates_main)
 .PHONY: install
 install: $(CREATE_TEMPLATES)
 	mkdir -p $(LIBEXEC)
-	$(IPROG) $(CREATE_TEMPLATES) $(LIBEXEC)/
+	$(IEXE) $(CREATE_TEMPLATES) $(LIBEXEC)/
 	mkdir -p $(FIRSTBOOT)
-	$(IPROG) 60-regenerate-old-templates $(FIRSTBOOT)/
+	$(IEXE) 60-regenerate-old-templates $(FIRSTBOOT)/
 
 .PHONY: clean
 clean:

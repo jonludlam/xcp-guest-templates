@@ -1,0 +1,94 @@
+#!/bin/bash
+##
+# Remove templates which came with the previous release allowing new versions to be regenerated.
+# We recognise these templates by the other-config:default_template=true flag.
+# We only run this script on the master.
+
+set -e
+XE=/usr/bin/xe
+
+# Added to syslog messages from this script
+TAG=templates
+
+. /etc/xensource-inventory
+
+UPGRADE="false"
+[ -r ${FIRSTBOOT_DATA_DIR}/host.conf ] && . ${FIRSTBOOT_DATA_DIR}/host.conf
+
+# Keep this in sync with init.d/xapi:
+XAPI_INIT_COMPLETE_COOKIE=/var/run/xapi_init_complete.cookie
+
+# Return zero if this host is a master and non-zero otherwise.
+this_host_is_master(){
+    # Note that this is (a) firstboot (after install, upgrade or eject) and (b) UPGRADE is set.
+    # Therefore HA isn't running and it's safe to peek at the pool.conf. The reason we don't use the
+    # the CLI is because, if we're a slave, we want to detect this without blocking and return from
+    # this script.
+    pool_role=$(cat < /etc/xensource/pool.conf)
+    [ "${pool_role}" = "master" ]
+    return $?
+}
+
+# Wait for xapi to write its "init complete" cookie: after here it's safe to modify templates.
+# (One possible failure mode incurred by not waiting is to not be able to find the tools .iso)
+wait_for_xapi() {
+    MAX_RETRIES=300
+    RETRY=0
+    echo "Waiting for xapi to signal init complete"
+    while [ ${RETRY} -lt ${MAX_RETRIES} ]; do
+	if [ -e ${XAPI_INIT_COMPLETE_COOKIE} ]; then
+	    logger -t ${TAG} "detected xapi init complete after ${RETRY} / ${MAX_RETRIES} s"
+	    return 0
+	fi
+	sleep 1
+	RETRY=$(( ${RETRY} + 1 ))
+    done
+    logger -t ${TAG} "failed to detect xapi init complete after ${MAX_RETRIES}s"
+    echo "failed to detect xapi init complete after ${MAX_RETRIES}s"
+    return 1
+}
+
+# Remove all default_templates from the previous release.
+remove_built_in_templates() {
+    echo "Removing any existing built-in templates"
+    logger -t ${TAG} "Removing any existing built-in templates"
+    IFS=","; for uuid in $($XE template-list other-config:default_template=true --minimal); do
+	logger -t ${TAG} "Removing old template: $($XE template-list uuid=$uuid params=name-label --minimal)"
+	$XE vm-param-set uuid=$uuid is-a-template=false
+	$XE vm-param-set uuid=$uuid other-config:default_template=false
+	$XE vm-destroy uuid=$uuid
+    done
+}
+
+# Trigger the regeneration of built in default_templates
+regenerate_templates(){
+    echo "Regenerating built-in templates"
+    logger -t ${TAG} "Regenerating built-in templates"
+    $XE regenerate-built-in-templates
+}
+
+start() {
+    # If we haven't upgraded then there are no old templates to upgrade!
+    if [ "$UPGRADE" = "false" ]; then
+	logger -t ${TAG} "We haven't just upgraded; no template changes required"
+	return 0
+    fi
+    # if slave then return
+    if this_host_is_master; then
+	logger -t ${TAG} "This host is a master which has just been upgraded; attempting to upgrade templates."
+	if wait_for_xapi; then
+	    remove_built_in_templates
+	    regenerate_templates
+	    return 0
+	else
+	    return 1
+	fi
+    else
+	logger -t ${TAG} "This host is an upgraded slave; no template changes required"
+	return 0
+    fi
+}
+
+case $1 in
+    start)  start ;;
+esac

@@ -64,7 +64,7 @@ remove_built_in_templates() {
 regenerate_templates(){
     echo "Regenerating built-in templates"
     logger -t ${TAG} "Regenerating built-in templates"
-    $XE regenerate-built-in-templates
+	/opt/xensource/libexec/create_templates
 }
 
 start() {

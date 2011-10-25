@@ -1,0 +1,40 @@
+CREATE_TEMPLATES=create_templates
+
+DESTDIR=$(getenv DESTDIR, $(ROOT)/dist/staging)
+LIBEXEC=$(DESTDIR)/opt/xensource/libexec
+FIRSTBOOT=$(DESTDIR)/etc/firstboot.d
+
+IEXE=install -m 755 -o root -g root
+
+OCAMLPACKS = xapi-client threads
+
+OCAMLFLAGS = -g -dtypes -thread -warn-error +a-4-6-9-27-28-29
+OCAMLCFLAGS = -g
+OCAMLOPTFLAGS = -ccopt -fPIC
+CFLAGS=-g -O2 -DPLATFORM_UNIX -DOS_LINUX -g -DDEBUG -I$(shell ocamlc -where)
+USE_OCAMLFIND = true
+NATIVE_ENABLED = true
+BYTE_ENABLED = $(not $(NATIVE_ENABLED))
+OCAMLDEP_MODULES_ENABLED = false
+
+if $(NATIVE_ENABLED)
+	CFLAGS+=-DCOMPILE_NATIVE
+	export
+
+LDFLAGS+=-static
+
+OCamlProgram($(CREATE_TEMPLATES), create_templates create_templates_main)
+
+.DEFAULT: $(CREATE_TEMPLATES)
+
+.PHONY: install
+install: $(CREATE_TEMPLATES)
+	mkdir -p $(LIBEXEC)
+	$(IPROG) $(CREATE_TEMPLATES) $(LIBEXEC)/
+	mkdir -p $(FIRSTBOOT)
+	$(IPROG) 60-regenerate-old-templates $(FIRSTBOOT)/
+
+.PHONY: clean
+clean:
+	rm -f *.cmi *.cmx *.cmo *.a *.cma *.cmxa *.run *.opt *.annot *.o *.spot *.spit *.omc $(CREATE_TEMPLATES)
+

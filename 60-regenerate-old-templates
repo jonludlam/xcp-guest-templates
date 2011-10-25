@@ -68,11 +68,6 @@ regenerate_templates(){
 }
 
 start() {
-    # If we haven't upgraded then there are no old templates to upgrade!
-    if [ "$UPGRADE" = "false" ]; then
-	logger -t ${TAG} "We haven't just upgraded; no template changes required"
-	return 0
-    fi
     # if slave then return
     if this_host_is_master; then
 	logger -t ${TAG} "This host is a master which has just been upgraded; attempting to upgrade templates."

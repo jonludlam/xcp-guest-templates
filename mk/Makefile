@@ -1,7 +1,7 @@
 include $(B_BASE)/common.mk
 include $(B_BASE)/rpmbuild.mk
 
-REPO = $(call hg_loc,guest_templates)
+REPO = $(call hg_loc,guest-templates)
 RPM_BINDIR = $(RPM_RPMSDIR)/$(DOMAIN0_ARCH_OPTIMIZED)
 
 .PHONY: build

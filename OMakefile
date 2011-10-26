@@ -32,7 +32,7 @@ install: $(CREATE_TEMPLATES)
 	mkdir -p $(LIBEXEC)
 	$(IEXE) $(CREATE_TEMPLATES) $(LIBEXEC)/
 	mkdir -p $(FIRSTBOOT)
-	$(IEXE) 60-regenerate-old-templates $(FIRSTBOOT)/
+	$(IEXE) 61-regenerate-old-templates $(FIRSTBOOT)/
 
 .PHONY: clean
 clean:

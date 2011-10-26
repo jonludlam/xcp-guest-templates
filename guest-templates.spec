@@ -35,7 +35,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root,-)
 /opt/xensource/libexec/create_templates
-/etc/firstboot.d/60-regenerate-old-templates
+/etc/firstboot.d/61-regenerate-old-templates
 
 
 %changelog

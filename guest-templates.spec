@@ -2,14 +2,14 @@
 
 %define XEN_RELEASE %(test -z "${XEN_RELEASE}" && echo unknown || echo $XEN_RELEASE)
 
-Summary: templates - Create default XCP templates
-Name:    templates
+Summary: guest-templates - Create default XCP templates
+Name:    guest-templates
 Version: 0
 Release: %{XEN_RELEASE}
 Group:   System/Hypervisor
 License: LGPL+linking exception
 URL:  http://www.xen.org
-Source0: templates-%{version}.tar.bz2
+Source0: guest-templates-%{version}.tar.bz2
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 BuildRequires: ocaml, ocaml-findlib, ocaml-camlp4, ocaml-type-conv, ocaml-getopt, omake, xapi-client-devel, xapi-libs-devel
 

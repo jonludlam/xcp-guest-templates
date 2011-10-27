@@ -312,7 +312,7 @@ let sdk_install_template =
 
 (* Demonstration templates ---------------------------------------------------*)
 
-let base_path = "/opt/xensource/libexec"
+let base_path = "/opt/xensource"
 let demo_xgt_dir = base_path ^ "/packages/xgt/"
 let post_install_dir = base_path ^ "/packages/post-install-scripts/"
 

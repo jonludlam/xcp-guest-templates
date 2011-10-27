@@ -29,9 +29,6 @@ DESTDIR=$RPM_BUILD_ROOT omake install
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post
-[ ! -x /sbin/chkconfig ] || chkconfig --add v6d
-
 %files
 %defattr(-,root,root,-)
 /opt/xensource/libexec/create_templates

@@ -580,12 +580,12 @@ let create_all_templates rpc session_id =
 		rhel5x_template "CentOS 5" X64 [    ];
 		oracle_template "Oracle Enterprise Linux 5" X32 [    ];
 		oracle_template "Oracle Enterprise Linux 5" X64 [    ];
-		rhel6x_template "Red Hat Enterprise Linux 6.0"   X32 [    ];
-		rhel6x_template "Red Hat Enterprise Linux 6.0"   X64 [    ];
-		rhel6x_template "Oracle Enterprise Linux 6.0" X32 [    ];
-		rhel6x_template "Oracle Enterprise Linux 6.0" X64 [    ];
-		rhel6x_template "CentOS 6.0" X32 [    ];
-		rhel6x_template "CentOS 6.0" X64 [    ];
+		rhel6x_template "Red Hat Enterprise Linux 6"   X32 [    ];
+		rhel6x_template "Red Hat Enterprise Linux 6"   X64 [    ];
+		rhel6x_template "Oracle Enterprise Linux 6" X32 [    ];
+		rhel6x_template "Oracle Enterprise Linux 6" X64 [    ];
+		rhel6x_template "CentOS 6" X32 [    ];
+		rhel6x_template "CentOS 6" X64 [    ];
 
 		sles_9_template    "SUSE Linux Enterprise Server 9 SP4"  X32 [    ];
 		sles10sp1_template "SUSE Linux Enterprise Server 10 SP1" X32 [    ];

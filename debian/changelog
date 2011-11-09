@@ -1,0 +1,5 @@
+guest-templates (0.1-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Mike McClurg <mike.mcclurg@citrix.com>  Wed, 09 Nov 2011 22:13:09 +0000

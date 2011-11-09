@@ -1,0 +1,15 @@
+Source: guest-templates
+Section: admin
+Priority: extra
+Maintainer: Mike McClurg <mike.mcclurg@citrix.com>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.2
+Homepage: https://github.com/xen-org
+
+Package: xcp-guest-templates
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Enhances: xcp-xapi
+Description: Guest templates for XCP
+ This package installs a program that will create guest installation templates
+ for XCP. This program is meant to be run once by xapi itself.

@@ -2,7 +2,7 @@ Source: guest-templates
 Section: admin
 Priority: extra
 Maintainer: Mike McClurg <mike.mcclurg@citrix.com>
-Build-Depends: debhelper (>= 8.0.0)
+Build-Depends: debhelper (>= 8.0.0), dh-ocaml, ocaml-nox | ocaml, omake, libxenapi-ocaml-dev
 Standards-Version: 3.9.2
 Homepage: https://github.com/xen-org
 

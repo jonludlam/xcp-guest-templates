@@ -15,3 +15,8 @@
 build:
 	dh build
 	omake
+
+clean:
+	dh clean
+	omake clean
+	rm -f *.omc .omakedb

@@ -8,7 +8,7 @@ Homepage: https://github.com/xen-org
 
 Package: xcp-guest-templates
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, xcp-xapi
 Enhances: xcp-xapi
 Description: Guest templates for XCP
  This package installs a program that will create guest installation templates

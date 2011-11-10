@@ -11,3 +11,7 @@
 
 %:
 	dh $@ --with ocaml
+
+build:
+	dh build
+	omake

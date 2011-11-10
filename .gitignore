@@ -1,0 +1,8 @@
+.omakedb
+.omakedb.lock
+*.o
+*.omc
+*.cmi
+*.cmx
+create_templates
+create_templates.opt

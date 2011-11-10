@@ -19,8 +19,12 @@ export DH_OPTIONS
 build:
 	dh build
 	omake
+	cp 61-regenerate-old-templates regenerate-old-templates
+	rm -f create_templates
+	cp create_templates.opt create_templates
 
 clean:
 	dh clean
 	omake clean
 	rm -f *.omc .omakedb
+	rm -f regenerate-old-templates

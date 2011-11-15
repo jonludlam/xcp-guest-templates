@@ -22,9 +22,10 @@ build:
 	cp 61-regenerate-old-templates regenerate-templates
 	rm -f create_templates
 	cp create_templates.opt create_templates
+	touch REGENERATE_TEMPLATES
 
 clean:
 	dh clean
 	omake clean
 	rm -f *.omc .omakedb
-	rm -f regenerate-old-templates
+	rm -f regenerate-old-templates REGENERATE_TEMPLATES

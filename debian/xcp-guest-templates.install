@@ -1,2 +1,2 @@
 create_templates /usr/lib/xen-common/xapi/libexec
-regenerate-old-templates /usr/lib/xen-common/xapi/libexec
+regenerate-templates /usr/lib/xen-common/xapi/libexec

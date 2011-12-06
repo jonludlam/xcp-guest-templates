@@ -2,10 +2,10 @@ guest-templates (0.1-2) unstable; urgency=low
 
   * Fix an issue where the path was incorrect
 
- -- Jon Ludlam <jludlam@snoosnoo2.uk.xensource.com>  Thu, 24 Nov 2011 12:00:19 +0000
+ -- Jon Ludlam <jonathan.ludlam@eu.citrix.com>  Thu, 24 Nov 2011 12:00:19 +0000
 
 guest-templates (0.1-1) unstable; urgency=low
 
   * Initial release (Closes: #646717)
 
- -- Mike McClurg <mike.mcclurg@citrix.com>  Wed, 09 Nov 2011 22:13:09 +0000
+ -- Jon Ludlam <jonathan.ludlam@eu.citrix.com>  Wed, 09 Nov 2011 22:13:09 +0000

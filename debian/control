@@ -1,7 +1,8 @@
 Source: guest-templates
 Section: admin
 Priority: extra
-Maintainer: Mike McClurg <mike.mcclurg@citrix.com>
+Maintainer: PKG Xen Devel <pkg-xen-devel@lists.alioth.debian.org>
+Uploaders: Jon Ludlam <jonathan.ludlam@eu.citrix.com>, Mike McClurg <mike.mcclurg@citrix.com>, Thomas Goirand <zigo@debian.org>
 Build-Depends: debhelper (>= 8.0.0), dh-ocaml, ocaml-nox | ocaml, omake, libxenapi-ocaml-dev
 Standards-Version: 3.9.2
 Homepage: https://github.com/xen-org

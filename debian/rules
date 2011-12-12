@@ -27,5 +27,5 @@ build:
 clean:
 	dh clean
 	omake clean
-	rm -f *.omc .omakedb
+	rm -f *.omc .omakedb .omakedb.lock
 	rm -f regenerate-old-templates REGENERATE_TEMPLATES

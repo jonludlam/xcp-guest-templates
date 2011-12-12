@@ -1,17 +1,7 @@
 guest-templates (0.1-3) unstable; urgency=low
 
   * FHS compliant installation
-
- -- Jon Ludlam <jon@frankenelmo.uk.xensource.com>  Thu, 08 Dec 2011 14:15:30 +0000
-
-guest-templates (0.1-2) unstable; urgency=low
-
   * Fix an issue where the path was incorrect
-
- -- Jon Ludlam <jonathan.ludlam@eu.citrix.com>  Thu, 24 Nov 2011 12:00:19 +0000
-
-guest-templates (0.1-1) unstable; urgency=low
-
   * Initial release (Closes: #646717)
 
- -- Jon Ludlam <jonathan.ludlam@eu.citrix.com>  Wed, 09 Nov 2011 22:13:09 +0000
+ -- Jon Ludlam <jonathan.ludlam@eu.citrix.com>  Thu, 08 Dec 2011 14:15:30 +0000

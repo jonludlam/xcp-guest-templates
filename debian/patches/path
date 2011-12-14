@@ -1,3 +1,6 @@
+Description: De-optify the path for xapi create_templates script.
+Forwarded: not-needed
+Author: Citrix.
 --- a/61-regenerate-old-templates
 +++ b/61-regenerate-old-templates
 @@ -64,7 +64,7 @@

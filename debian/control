@@ -5,6 +5,8 @@ Maintainer: PKG Xen Devel <pkg-xen-devel@lists.alioth.debian.org>
 Uploaders: Jon Ludlam <jonathan.ludlam@eu.citrix.com>, Mike McClurg <mike.mcclurg@citrix.com>, Thomas Goirand <zigo@debian.org>
 Build-Depends: debhelper (>= 8), dh-ocaml, ocaml-nox | ocaml, omake, libxenapi-ocaml-dev
 Standards-Version: 3.9.2
+Vcs-Git: http://anonscm.debian.org/git/pkg-xen/xcp-guest-templates.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-xen/xcp-guest-templates.git;a=summary
 Homepage: https://github.com/xen-org
 
 Package: xcp-guest-templates

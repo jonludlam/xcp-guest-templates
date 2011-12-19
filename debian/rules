@@ -22,4 +22,4 @@ override_dh_clean:
 	dh_clean  
 	omake clean || true
 	rm -f *.omc .omakedb .omakedb.lock
-	rm -f regenerate-old-templates REGENERATE_TEMPLATES
+	rm -f regenerate-old-templates REGENERATE_TEMPLATES regenerate-templates

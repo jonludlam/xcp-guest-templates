@@ -1,4 +1,4 @@
-#r/bin/make -f
+#!/bin/make -f
 # -*- makefile -*-
 
 #export DH_VERBOSE=1

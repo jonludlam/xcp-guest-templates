@@ -482,7 +482,7 @@ let oracle_template name architecture ?(is_experimental=false) flags =
 let rhel6x_template name architecture ?(is_experimental=false) flags =
 	let maximum_supported_memory_gib = match architecture with
 		| X32 -> 8
-		| X64 -> 32
+		| X64 -> 128
 		| X64_sol | X64_debianlike -> assert false
 	in
 	let name = make_long_name name architecture is_experimental in

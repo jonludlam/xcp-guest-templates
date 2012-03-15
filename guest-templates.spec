@@ -1,11 +1,9 @@
 # -*- rpm-spec -*-
 
-%define XEN_RELEASE %(test -z "${XEN_RELEASE}" && echo unknown || echo $XEN_RELEASE)
-
 Summary: guest-templates - Create default XCP templates
 Name:    guest-templates
-Version: 0
-Release: %{XEN_RELEASE}
+Version: @VERSION@
+Release: @RELEASE@
 Group:   System/Hypervisor
 License: LGPL+linking exception
 URL:  http://www.xen.org

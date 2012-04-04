@@ -354,6 +354,7 @@ type hvm_template_flags =
 	| NX
 	| XenApp
 	| Viridian
+	| StdVga
 
 type architecture =
 	| X32
@@ -398,6 +399,9 @@ let hvm_template
 	let name = Printf.sprintf "%s%s"
 		(if xen_app then "Citrix XenApp on " else "")
 		(make_long_name name architecture is_experimental) in
+	let platform_flags = base_platform_flags
+		@ (if List.mem StdVga flags then ["vga","std";"videoram","8"] else [])
+		@ (if List.mem Viridian flags then [ viridian_flag ] else []) in
 	{
 		base with
 		vM_name_label = name;
@@ -412,14 +416,8 @@ let hvm_template
 		] @ (if xen_app then ["application_template", "1"] else []);
 		vM_platform =
 			if List.mem NX flags
-			then
-				if List.mem Viridian flags
-				then nx_flag :: base_platform_flags @ [ viridian_flag ]
-				else nx_flag :: base_platform_flags
-			else 
-				if List.mem Viridian flags
-				then no_nx_flag :: base_platform_flags @ [ viridian_flag ]
-				else no_nx_flag :: base_platform_flags;
+			then nx_flag :: platform_flags
+			else no_nx_flag :: platform_flags;
 		vM_HVM_shadow_multiplier =
 			(if xen_app then 4.0 else base.vM_HVM_shadow_multiplier);
 		vM_recommendations = (recommendations ~memory:maximum_supported_memory_gib ());

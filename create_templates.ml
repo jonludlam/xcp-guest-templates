@@ -551,7 +551,6 @@ let debian_template name release architecture ?(supports_cd=true) ?(is_experimen
 		vM_other_config = (install_methods_otherconfig_key, methods) :: ("install-arch", install_arch) :: ("debian-release", release) :: bt.vM_other_config;
 		vM_recommendations = recommendations ~memory:maximum_supported_memory_gib ();
 		vM_name_description = bt.vM_name_description ^ (match release with
-			| "lenny"   -> "\nOfficial Debian Lenny CD/DVD images do not support XenServer. To find ISO images that do, please refer to: http://community.citrix.com/display/xs/Debian+Lenny"
 			| "squeeze" -> "\nIn order to install Debian Squeeze from CD/DVD the multi-arch ISO image is required."
 			| _         -> "")
 	}
@@ -598,7 +597,6 @@ let create_all_templates rpc session_id =
 		sles11_template    "SUSE Linux Enterprise Server 11"     X64 [    ];
 		sles11_template    "SUSE Linux Enterprise Server 11 SP1" X64 [    ];
 
-		debian_template "Debian Lenny 5.0" "lenny" X32 [    ];
 		debian_template "Debian Squeeze 6.0" "squeeze" X32 [    ];
 		debian_template "Debian Squeeze 6.0" "squeeze" X64_debianlike [    ];
 		debian_template "Ubuntu Lucid Lynx 10.04" "lucid" X32 ~supports_cd:false [    ];

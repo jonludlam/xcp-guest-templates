@@ -604,6 +604,8 @@ let create_all_templates rpc session_id =
 
 		debian_template "Ubuntu Maverick Meerkat 10.10" "maverick" X32 ~supports_cd:false ~is_experimental:true [    ];
 		debian_template "Ubuntu Maverick Meerkat 10.10" "maverick" X64_debianlike ~supports_cd:false ~is_experimental:true [    ];
+		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X32 ~is_experimental:true [    ];
+		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X64_debianlike ~is_experimental:true [    ];
 
 		sdk_install_template
 	] in

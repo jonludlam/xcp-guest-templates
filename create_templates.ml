@@ -211,7 +211,7 @@ let blank_template memory = {
 	vM_HVM_boot_policy = "";
 	vM_HVM_boot_params = [ ];
 	vM_HVM_shadow_multiplier = 1.;
-	vM_platform = no_nx_flag :: base_platform_flags @ [ viridian_flag ];
+	vM_platform = nx_flag :: base_platform_flags @ [ viridian_flag ];
 	vM_PCI_bus = "";
 	vM_other_config = [];
 	vM_is_control_domain = false;
@@ -380,7 +380,8 @@ let hvm_template
 		name architecture ?(is_experimental=false)
 		minimum_supported_memory_mib
 		root_disk_size_gib
-		flags = 
+		flags 
+		device_id =
 	let root = {
 		device = "0";
 		size = ((Int64.of_int root_disk_size_gib) ** gib);
@@ -401,7 +402,8 @@ let hvm_template
 		(make_long_name name architecture is_experimental) in
 	let platform_flags = base_platform_flags
 		@ (if List.mem StdVga flags then ["vga","std";"videoram","8"] else [])
-		@ (if List.mem Viridian flags then [ viridian_flag ] else []) in
+		@ (if List.mem Viridian flags then [ viridian_flag ] else [])
+		@ (if device_id <> "" then [ "device_id", device_id ] else []) in
 	{
 		base with
 		vM_name_label = name;
@@ -415,9 +417,9 @@ let hvm_template
 			install_methods_otherconfig_key, "cdrom"
 		] @ (if xen_app then ["application_template", "1"] else []);
 		vM_platform =
-			if List.mem NX flags
+			(if List.mem NX flags
 			then nx_flag :: platform_flags
-			else no_nx_flag :: platform_flags;
+			else no_nx_flag :: platform_flags);
 		vM_HVM_shadow_multiplier =
 			(if xen_app then 4.0 else base.vM_HVM_shadow_multiplier);
 		vM_recommendations = (recommendations ~memory:maximum_supported_memory_gib ());
@@ -616,24 +618,24 @@ let create_all_templates rpc session_id =
 		let v = Viridian in
 	[
 		other_install_media_template (default_memory_parameters 128L);
-		hvm_template "Windows XP SP3"             X32  256 16 [    v;];
-		hvm_template "Windows Vista"              X32 1024 24 [n;  v;];
-		hvm_template "Windows 7"                  X32 1024 24 [n;  v;];
-		hvm_template "Windows 7"                  X64 2048 24 [n;  v;];
-		hvm_template "Windows 8"                  X32 ~is_experimental:true 1024 24 [n;  v;];
-		hvm_template "Windows 8"                  X64 ~is_experimental:true 2048 24 [n;  v;];
-		hvm_template "Windows Server 2003"        X32  256 16 [    v;];
-		hvm_template "Windows Server 2003"        X32  256 16 [  x;v;];
-		hvm_template "Windows Server 2003"        X64  256 16 [n;  v;];
-		hvm_template "Windows Server 2003"        X64  256 16 [n;x;v;];
-		hvm_template "Windows Server 2008"        X32  512 24 [n;  v;];
-		hvm_template "Windows Server 2008"        X32  512 24 [n;x;v;];
-		hvm_template "Windows Server 2008"        X64  512 24 [n;  v;];
-		hvm_template "Windows Server 2008"        X64  512 24 [n;x;v;];
-		hvm_template "Windows Server 2008 R2"     X64  512 24 [n;  v;];
-		hvm_template "Windows Server 2008 R2"     X64  512 24 [n;x;v;];
-		hvm_template "Windows Server 8"     	X64 ~is_experimental:true 1024 24 [n;  v;];
-		hvm_template "Solaris 10"                 X64_sol ~is_experimental:true 1024 24 [n;    ];
+		hvm_template "Windows XP SP3"             X32  256 16 [    v;] "";
+		hvm_template "Windows Vista"              X32 1024 24 [n;  v;] "0002";
+		hvm_template "Windows 7"                  X32 1024 24 [n;  v;] "0002";
+		hvm_template "Windows 7"                  X64 2048 24 [n;  v;] "0002";
+		hvm_template "Windows 8"                  X32 ~is_experimental:true 1024 24 [n;  v;] "0002";
+		hvm_template "Windows 8"                  X64 ~is_experimental:true 2048 24 [n;  v;] "0002";
+		hvm_template "Windows Server 2003"        X32  256 16 [    v;] "";
+		hvm_template "Windows Server 2003"        X32  256 16 [  x;v;] "";
+		hvm_template "Windows Server 2003"        X64  256 16 [n;  v;] "";
+		hvm_template "Windows Server 2003"        X64  256 16 [n;x;v;] "";
+		hvm_template "Windows Server 2008"        X32  512 24 [n;  v;] "0002";
+		hvm_template "Windows Server 2008"        X32  512 24 [n;x;v;] "0002";
+		hvm_template "Windows Server 2008"        X64  512 24 [n;  v;] "0002";
+		hvm_template "Windows Server 2008"        X64  512 24 [n;x;v;] "0002";
+		hvm_template "Windows Server 2008 R2"     X64  512 24 [n;  v;] "0002";
+		hvm_template "Windows Server 2008 R2"     X64  512 24 [n;x;v;] "0002";
+		hvm_template "Windows Server 2012"     	X64 ~is_experimental:true 1024 24 [n;  v;] "0002";
+		hvm_template "Solaris 10"                 X64_sol ~is_experimental:true 1024 24 [n;    ] "";
 	] in
 
 	(* put default_template key in static_templates other_config of static_templates: *)

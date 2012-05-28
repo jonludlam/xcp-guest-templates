@@ -537,10 +537,10 @@ let sles10_template name architecture ?(is_experimental=false) flags =
 
 let sles11_template = sles10_template
 
-let debian_template name release architecture ?(supports_cd=true) ?(is_experimental=false) flags =
+let debian_template name release architecture ?(supports_cd=true) ?(is_experimental=false) ?(max_mem_gib=32) ?(max_vcpus=16) flags =
 	let maximum_supported_memory_gib = match architecture with
-		| X32 -> 32
-		| X64_debianlike -> 32
+		| X32 -> max_mem_gib
+		| X64_debianlike -> max_mem_gib
 		| X64_sol | X64 -> assert false
 	in
 	let name = make_long_name name architecture is_experimental in
@@ -549,7 +549,7 @@ let debian_template name release architecture ?(supports_cd=true) ?(is_experimen
 	let methods = if supports_cd then "cdrom,http,ftp" else "http,ftp" in
 	{ bt with 
 		vM_other_config = (install_methods_otherconfig_key, methods) :: ("install-arch", install_arch) :: ("debian-release", release) :: bt.vM_other_config;
-		vM_recommendations = recommendations ~memory:maximum_supported_memory_gib ();
+		vM_recommendations = recommendations ~memory:maximum_supported_memory_gib ~vcpus:max_vcpus ();
 		vM_name_description = bt.vM_name_description ^ (match release with
 			| "squeeze" -> "\nIn order to install Debian Squeeze from CD/DVD the multi-arch ISO image is required."
 			| _         -> "")
@@ -604,8 +604,8 @@ let create_all_templates rpc session_id =
 
 		debian_template "Ubuntu Maverick Meerkat 10.10" "maverick" X32 ~supports_cd:false ~is_experimental:true [    ];
 		debian_template "Ubuntu Maverick Meerkat 10.10" "maverick" X64_debianlike ~supports_cd:false ~is_experimental:true [    ];
-		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X32 ~is_experimental:true [    ];
-		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X64_debianlike ~is_experimental:true [    ];
+		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X32 ~max_vcpus:8 [    ];
+		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X64_debianlike ~max_mem_gib:128 ~max_vcpus:128 [    ];
 
 		sdk_install_template
 	] in

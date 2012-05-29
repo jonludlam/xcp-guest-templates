@@ -263,6 +263,7 @@ let other_install_media_template memory =
 	vM_PV_bootloader = ""; 
 	vM_HVM_boot_policy = Constants.hvm_boot_policy_bios_order;
 	vM_HVM_boot_params = [ Constants.hvm_boot_params_order, "dc" ];
+	vM_platform = nx_flag :: base_platform_flags @ [ viridian_flag ];
 	vM_other_config = [ install_methods_otherconfig_key, "cdrom" ];
 }
 

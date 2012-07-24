@@ -1,3 +1,10 @@
+guest-templates (0.2-1) unstable; urgency=low
+
+  * Bump upstream version
+  * Adds templates for Ubuntu Precise and Quantal
+
+ -- Mike McClurg <mike.mcclurg@citrix.com>  Tue, 24 Jul 2012 14:28:29 +0100
+
 guest-templates (0.1-4) unstable; urgency=low
 
   * Adds templates for  both 32 and 64 bits Wheezy.

@@ -1,0 +1,40 @@
+From: Mike McClurg <mike.mcclurg@citrix.com>
+Date: Tue, 24 Jul 2012 15:00:31 +0100
+Subject: add new templates
+
+---
+ create_templates.ml |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/create_templates.ml b/create_templates.ml
+index 895287e..e13f660 100644
+--- a/create_templates.ml
++++ b/create_templates.ml
+@@ -555,6 +555,7 @@ let debian_template name release architecture ?(supports_cd=true) ?(is_experimen
+ 		vM_recommendations = recommendations ~memory:maximum_supported_memory_gib ~vcpus:max_vcpus ();
+ 		vM_name_description = bt.vM_name_description ^ (match release with
+ 			| "squeeze" -> "\nIn order to install Debian Squeeze from CD/DVD the multi-arch ISO image is required."
++			| "wheezy" -> "\nIn order to install Debian Wheezy from CD/DVD the multi-arch ISO image is required."
+ 			| _         -> "")
+ 	}
+ 
+@@ -602,13 +603,17 @@ let create_all_templates rpc session_id =
+ 
+ 		debian_template "Debian Squeeze 6.0" "squeeze" X32 [    ];
+ 		debian_template "Debian Squeeze 6.0" "squeeze" X64_debianlike [    ];
++		debian_template "Debian Wheezy 7.0" "wheezy" X32 [    ];
++		debian_template "Debian Wheezy 7.0" "wheezy" X64_debianlike [    ];
++
+ 		debian_template "Ubuntu Lucid Lynx 10.04" "lucid" X32 ~supports_cd:false [    ];
+ 		debian_template "Ubuntu Lucid Lynx 10.04" "lucid" X64_debianlike ~supports_cd:false [    ];
+-
+ 		debian_template "Ubuntu Maverick Meerkat 10.10" "maverick" X32 ~supports_cd:false ~is_experimental:true [    ];
+ 		debian_template "Ubuntu Maverick Meerkat 10.10" "maverick" X64_debianlike ~supports_cd:false ~is_experimental:true [    ];
+ 		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X32 ~max_vcpus:8 [    ];
+ 		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X64_debianlike ~max_mem_gib:128 ~max_vcpus:128 [    ];
++		debian_template "Ubuntu Quantal Quetzal 12.10" "quantal" X32 ~max_vcpus:8 [    ];
++		debian_template "Ubuntu Quantal Quetzal 12.10" "quantal" X64_debianlike ~max_mem_gib:128 ~max_vcpus:128 [    ];
+ 
+ 		sdk_install_template
+ 	] in
+-- 

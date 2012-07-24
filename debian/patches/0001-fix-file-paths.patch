@@ -1,6 +1,13 @@
-Description: De-optify the path for xapi create_templates script.
-Forwarded: not-needed
-Author: Citrix.
+From: Mike McClurg <mike.mcclurg@citrix.com>
+Date: Tue, 24 Jul 2012 14:55:25 +0100
+Subject: fix file paths
+
+---
+ 61-regenerate-old-templates |    6 +++---
+ OMakefile                   |    2 +-
+ create_templates_main.ml    |    2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
 diff --git a/61-regenerate-old-templates b/61-regenerate-old-templates
 index ec5de12..582416e 100755
 --- a/61-regenerate-old-templates
@@ -46,7 +53,7 @@ index d488e93..5b0b665 100644
  
  IEXE=install -m 755 -o root -g root
 diff --git a/create_templates_main.ml b/create_templates_main.ml
-index 122685a..b49602f 100644
+index 122685a..b2edf50 100644
 --- a/create_templates_main.ml
 +++ b/create_templates_main.ml
 @@ -17,7 +17,7 @@ open Client
@@ -54,7 +61,8 @@ index 122685a..b49602f 100644
  let rpc xml =
      let open Xmlrpc_client in
 -    XML_protocol.rpc ~transport:(Unix "/var/xapi/xapi") ~http:(xmlrpc ~version:"1.0" "/") xml
-+    XML_protocol.rpc ~transport:(Unix "/var/lib/xcp/xapi") ~http:(xmlrpc ~version:"1.0" "/") xml
++    XML_protocol.rpc ~transport:(Unix (Fhs.vardir ^ "/xapi")) ~http:(xmlrpc ~version:"1.0" "/") xml
  
  let _ =
      let session_id = Client.Session.login_with_password ~rpc ~uname:"" ~pwd:"" ~version:"1.0" in
+-- 

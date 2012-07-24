@@ -1,3 +1,2 @@
-path
-adds-templates-for-wheezy.patch
-add-ubuntu-precise-quantal
+0001-fix-file-paths.patch
+0002-add-new-templates.patch

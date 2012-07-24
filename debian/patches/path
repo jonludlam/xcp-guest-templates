@@ -1,0 +1,60 @@
+Description: De-optify the path for xapi create_templates script.
+Forwarded: not-needed
+Author: Citrix.
+diff --git a/61-regenerate-old-templates b/61-regenerate-old-templates
+index ec5de12..582416e 100755
+--- a/61-regenerate-old-templates
++++ b/61-regenerate-old-templates
+@@ -10,7 +10,7 @@ XE=/usr/bin/xe
+ # Added to syslog messages from this script
+ TAG=templates
+ 
+-. /etc/xensource-inventory
++. /etc/xcp/inventory
+ 
+ UPGRADE="false"
+ [ -r ${FIRSTBOOT_DATA_DIR}/host.conf ] && . ${FIRSTBOOT_DATA_DIR}/host.conf
+@@ -24,7 +24,7 @@ this_host_is_master(){
+     # Therefore HA isn't running and it's safe to peek at the pool.conf. The reason we don't use the
+     # the CLI is because, if we're a slave, we want to detect this without blocking and return from
+     # this script.
+-    pool_role=$(cat < /etc/xensource/pool.conf)
++    pool_role=$(cat < /etc/xcp/pool.conf)
+     [ "${pool_role}" = "master" ]
+     return $?
+ }
+@@ -64,7 +64,7 @@ remove_built_in_templates() {
+ regenerate_templates(){
+     echo "Regenerating built-in templates"
+     logger -t ${TAG} "Regenerating built-in templates"
+-	/opt/xensource/libexec/create_templates
++	/usr/lib/xcp/lib/create_templates
+ }
+ 
+ start() {
+diff --git a/OMakefile b/OMakefile
+index d488e93..5b0b665 100644
+--- a/OMakefile
++++ b/OMakefile
+@@ -1,7 +1,7 @@
+ CREATE_TEMPLATES=create_templates
+ 
+ DESTDIR=$(getenv DESTDIR, $(ROOT)/dist/staging)
+-LIBEXEC=$(DESTDIR)/opt/xensource/libexec
++LIBEXEC=$(DESTDIR)/usr/lib/xcp/lib
+ FIRSTBOOT=$(DESTDIR)/etc/firstboot.d
+ 
+ IEXE=install -m 755 -o root -g root
+diff --git a/create_templates_main.ml b/create_templates_main.ml
+index 122685a..b49602f 100644
+--- a/create_templates_main.ml
++++ b/create_templates_main.ml
+@@ -17,7 +17,7 @@ open Client
+ 
+ let rpc xml =
+     let open Xmlrpc_client in
+-    XML_protocol.rpc ~transport:(Unix "/var/xapi/xapi") ~http:(xmlrpc ~version:"1.0" "/") xml
++    XML_protocol.rpc ~transport:(Unix "/var/lib/xcp/xapi") ~http:(xmlrpc ~version:"1.0" "/") xml
+ 
+ let _ =
+     let session_id = Client.Session.login_with_password ~rpc ~uname:"" ~pwd:"" ~version:"1.0" in

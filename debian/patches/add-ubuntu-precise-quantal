@@ -1,0 +1,15 @@
+--- a/create_templates.ml
++++ b/create_templates.ml
+@@ -613,6 +613,12 @@
+ 		debian_template "Ubuntu Maverick Meerkat 10.10" "maverick" X32 ~supports_cd:false ~is_experimental:true [    ];
+ 		debian_template "Ubuntu Maverick Meerkat 10.10" "maverick" X64_debianlike ~supports_cd:false ~is_experimental:true [    ];
+ 
++        debian_template "Ubuntu Precise Pangolin 12.04" "precise" X32 ~max_vcpus:8 [ ];
++        debian_template "Ubuntu Precise Pangolin 12.04" "precise" X64_debianlike ~max_mem_gib:128 ~max_vcpus:128 [ ];
++
++        debian_template "Ubuntu Quantal Quetzal 12.10" "quantal" X32 ~max_vcpus:8 ~is_experimental:true [ ];
++        debian_template "Ubuntu Quantal Quetzal 12.10" "quantal" X64_debianlike ~max_mem_gib:128 ~max_vcpus:128 ~is_experimental:true [ ];
++
+ 		sdk_install_template
+ 	] in
+ 

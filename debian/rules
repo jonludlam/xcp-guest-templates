@@ -1,0 +1,25 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+  
+%:
+	dh $@ --with ocaml
+
+override_dh_auto_build:   
+	dh_auto_build
+	OCAMLPATH=/usr/lib/ocaml/xcp omake
+	cp 61-regenerate-old-templates regenerate-templates
+	rm -f create_templates
+	cp create_templates.opt create_templates
+	touch REGENERATE_TEMPLATES
+
+override_dh_clean:
+	dh_clean  
+	omake clean || true
+	rm -f *.omc .omakedb .omakedb.lock
+	rm -f regenerate-old-templates REGENERATE_TEMPLATES regenerate-templates

@@ -1,0 +1,35 @@
+Source: guest-templates
+Section: admin
+Priority: extra
+Maintainer: PKG Xen Devel <pkg-xen-devel@lists.alioth.debian.org>
+Uploaders: Jon Ludlam <jonathan.ludlam@eu.citrix.com>, Mike McClurg <mike.mcclurg@citrix.com>, Thomas Goirand <zigo@debian.org>
+Build-Depends: debhelper (>= 8), dh-ocaml, ocaml-nox | ocaml, omake, libxenapi-ocaml-dev
+Standards-Version: 3.9.2
+Vcs-Git: http://anonscm.debian.org/git/pkg-xen/xcp-guest-templates.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-xen/xcp-guest-templates.git;a=summary
+Homepage: https://github.com/xen-org
+
+Package: xcp-guest-templates
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, xcp-xapi
+Enhances: xcp-xapi
+Description: Guest template generator for XCP
+ The Xen Cloud Platform (XCP) is an open source enterprise-ready server
+ virtualization and cloud computing platform, with support for a range of
+ guest operating systems, Linux network and storage support.
+ .
+ XCP addresses the needs of cloud providers, hosting services and data centers
+ by combining the isolation and multitenancy capabilities of the Xen hypervisor
+ with enhanced security, storage and network virtualization technologies to
+ offer a rich set of virtual infrastructure cloud services. The platform
+ also address user requirements for security, availability, performance and
+ isolation across both private and public clouds.
+ .
+ XCP consolidates server workloads, enables savings in power, cooling, and
+ management costs and thus contributing to environmentally sustainable
+ computing, an increased ability to adapt to ever-changing IT environments,
+ an optimized use of existing hardware, and an improved level of IT
+ reliability.
+ .
+ This package installs a program that will create guest installation templates
+ for XCP. This program is meant to be run once by xapi itself.

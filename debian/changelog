@@ -1,0 +1,13 @@
+guest-templates (0.1-4) unstable; urgency=low
+
+  * Adds templates for  both 32 and 64 bits Wheezy.
+
+ -- Thomas Goirand <zigo@debian.org>  Mon, 09 Jul 2012 16:52:15 +0000
+
+guest-templates (0.1-3) unstable; urgency=low
+
+  * Initial release (Closes: #646717)
+  * 0.1-3: Fix an issue where the path was incorrect
+  * 0.1-2: FHS compliant installation
+
+ -- Jon Ludlam <jonathan.ludlam@eu.citrix.com>  Thu, 08 Dec 2011 14:15:30 +0000

@@ -1,0 +1,2 @@
+create_templates /usr/lib/xcp/lib
+regenerate-templates /usr/lib/xcp/lib

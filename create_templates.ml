@@ -15,8 +15,18 @@
  * @group Virtual-Machine Management
  *)
 
+let never = "19700101T00:00:00Z"
 open API
+
 open Stringext
+module X = Xen_api_lwt_unix
+
+module Ref = struct
+	include Ref
+	let null = "OpaqueRef:NULL"
+end
+
+
 
 module D = Debug.Debugger(struct let name="xapi" end)
 open D
@@ -60,7 +70,7 @@ type disk = { device: string; (** device inside the guest eg xvda *)
 	      size: int64;    (** size in bytes *)
 	      sr: string;     (** name or UUID of the SR in which to make the disk *)
 	      bootable: bool;
-	      _type: API.vdi_type
+	      _type: vdi_type
 	    }
 
 let vdi_type2string = function
@@ -88,26 +98,24 @@ let recommendations ?(memory=128) ?(vcpus=16) ?(vbds=7) ?(vifs=7) () =
     ^"</restrictions>"
 
 
-open Client
-
 let find_or_create_template x rpc session_id = 
-  let all = Client.VM.get_by_name_label rpc session_id x.vM_name_label in
+  lwt all = X.VM.get_by_name_label rpc session_id x.vM_name_label in
   (* CA-30238: Filter out _default templates_ *)
-  let all = List.filter (fun self -> Client.VM.get_is_a_template rpc session_id self) all in
-  let all = List.filter (fun self -> List.mem default_template (Client.VM.get_other_config rpc session_id self)) all in
+  lwt all = Lwt_list.filter_p (fun self -> X.VM.get_is_a_template rpc session_id self) all in
+  lwt all = Lwt_list.filter_p (fun self -> lwt oc = X.VM.get_other_config rpc session_id self in Lwt.return (List.mem default_template oc)) all in
   if all = []
-  then Client.VM.create_from_record rpc session_id x
-  else List.hd all
+  then X.VM.create_from_record rpc session_id x
+  else Lwt.return (List.hd all)
 
 let version_of_tools_vdi rpc session_id vdi =
-  let sm_config = Client.VDI.get_sm_config rpc session_id vdi in
+  lwt sm_config = X.VDI.get_sm_config rpc session_id vdi in
   let version = List.assoc "xs-tools-version" sm_config in
   let build = 
     if List.mem_assoc "xs-tools-build" sm_config 
     then int_of_string (List.assoc "xs-tools-build" sm_config) else 0 in
-  match List.map int_of_string (String.split '.' version) with
+  Lwt.return (match List.map int_of_string (String.split '.' version) with
   | [ major; minor; micro ] -> major, minor, micro, build
-  | _                       -> 0, 0, 0, build (* only if filename is malformed *)
+  | _                       -> 0, 0, 0, build) (* only if filename is malformed *)
 
 (* From Miami GA onward we identify the tools SR with the SR.other_config key: *)
 let tools_sr_tag = "xenserver_tools_sr"
@@ -120,41 +128,46 @@ let tools_sr_tag = "xenserver_tools_sr"
     used to distinguish between builds of the tools VDI.  *)
 let find_xs_tools_vdi rpc session_id = 
   (* Find the SR first *)
-  let srs = List.filter (fun sr -> List.mem_assoc tools_sr_tag (Client.SR.get_other_config rpc session_id sr)) (Client.SR.get_all rpc session_id) in
+  lwt srs = X.SR.get_all rpc session_id in
+  lwt srs = Lwt_list.filter_p (fun sr -> lwt oc = X.SR.get_other_config rpc session_id sr in
+				   Lwt.return (List.mem_assoc tools_sr_tag oc)
+				   ) srs in
   
   let find_vdi sr = 
-    begin 
+    lwt () = begin 
       try
-	Client.SR.scan rpc session_id sr
+	X.SR.scan rpc session_id sr
       with e ->
 	error "Scan of tools SR failed - exception was '%s'" (Printexc.to_string e);
-	error "Ignoring error and continuing"
-    end;
+	error "Ignoring error and continuing";
+        Lwt.return ()
+    end in
     
-    let vdis = Client.SR.get_VDIs rpc session_id sr in
+    lwt vdis = X.SR.get_VDIs rpc session_id sr in
     begin 
-	match List.filter (fun self -> 
-	  let sm_config = Client.VDI.get_sm_config rpc session_id self in
-	  try List.assoc "xs-tools" sm_config = "true" with _ -> false) vdis 
-	with
-	  | [] -> None
-	  | [ vdi ] -> Some vdi
+	lwt res = Lwt_list.filter_p (fun self -> 
+	  lwt sm_config = X.VDI.get_sm_config rpc session_id self in
+	  Lwt.return (try List.assoc "xs-tools" sm_config = "true" with _ -> false)) vdis in
+        match res with
+	  | [] -> Lwt.return None
+	  | [ vdi ] -> Lwt.return (Some vdi)
 	  | vdis -> 
+              lwt l = Lwt_list.map_p (fun x -> lwt v = version_of_tools_vdi rpc session_id x in Lwt.return (x,v)) vdis in
 	      let sorted = List.sort 
-		(fun vdi1 vdi2 ->
-		  let major1, minor1, micro1, build1 = version_of_tools_vdi rpc session_id vdi1 in
-		  let major2, minor2, micro2, build2 = version_of_tools_vdi rpc session_id vdi2 in
+		(fun (vdi1,x1) (vdi2,x2) ->
+		  let major1, minor1, micro1, build1 = x1 in
+		  let major2, minor2, micro2, build2 = x2 in
 		  0 +
 		    8 * (compare major1 major2) +
 		    4 * (compare minor1 minor2) +
 		    2 * (compare micro1 micro2) +
 		    1 * (compare build1 build2)
-		) vdis in
+		) l in
 	      let newest = List.hd (List.rev sorted) in
-	      Some newest
+              Lwt.return (Some (fst newest))
     end in
   match srs with
-    | [] -> warn "No Tools SR could be found"; None
+    | [] -> warn "No Tools SR could be found"; Lwt.return None
     | [ sr ] -> find_vdi sr
     | sr::_ -> warn "Multiple Tools SRs detected, choosing one at random"; find_vdi sr
 	
@@ -187,7 +200,7 @@ let blank_template memory = {
 	vM_transportable_snapshot_id = "";
 	vM_parent = Ref.null;
 	vM_children = [];
-	vM_snapshot_time = Date.never;
+	vM_snapshot_time = never;
 	vM_snapshot_info = [];
 	vM_snapshot_metadata = "";
 	vM_memory_overhead = (0L ** mib);
@@ -261,8 +274,8 @@ let other_install_media_template memory =
 	vM_name_description =
 		"Template which allows VM installation from install media";
 	vM_PV_bootloader = ""; 
-	vM_HVM_boot_policy = Constants.hvm_boot_policy_bios_order;
-	vM_HVM_boot_params = [ Constants.hvm_boot_params_order, "dc" ];
+	vM_HVM_boot_policy = "BIOS order";
+	vM_HVM_boot_params = [ "order", "dc" ];
 	vM_platform = nx_flag :: base_platform_flags @ [ viridian_flag ];
 	vM_other_config = [ install_methods_otherconfig_key, "cdrom" ];
 }
@@ -293,24 +306,6 @@ let eli_install_template memory name distro nfs pv_args =
         ];
   }
 
-let sdk_install_template =
-  let root = { device = "0"; size = (12L ** gib); sr = preferred_sr; bootable = true; _type = `system } in
-  { (blank_template (default_memory_parameters 1024L)) with
-      vM_name_label = "Xen API SDK";
-      vM_name_description = "Use this template to install a Xen API SDK using installation media";
-      vM_PV_bootloader = "eliloader";
-      vM_PV_args = "xencons=hvc console=hvc0 install answerfile=file:///sdk.answerfile";
-      vM_HVM_boot_policy = "";
-      vM_other_config =
-        [
-          disks_key, Xml.to_string (xml_of_disks [ root ]);
-          distros_otherconfig_key, "pygrub";
-          install_methods_otherconfig_key, "cdrom,http,ftp";
-          "install-kernel", "vmlinuz";
-          "install-ramdisk", "install.img"
-        ];
-  }
-
 (* Demonstration templates ---------------------------------------------------*)
 
 let base_path = "/opt/xensource"
@@ -321,12 +316,13 @@ let demo_xgt_template rpc session_id name_label short_name_label demo_xgt_name p
 	let script = post_install_dir ^ post_install_script in
 	let xgt = demo_xgt_dir ^ demo_xgt_name in
 	let xgt_installed = try Unix.access xgt [ Unix.F_OK ]; true with _ -> false in
-	if not(xgt_installed) then
-		debug "Skipping %s template because post install script is missing" name_label
-	else begin
+	if not(xgt_installed) then begin
+		debug "Skipping %s template because post install script is missing" name_label;
+	        Lwt.return ()
+        end else begin
 		let root = { device = "0"; size = (4L ** gib); sr = preferred_sr; bootable = true; _type = `system } 
 		and swap = { device = "1"; size = (512L ** mib); sr = preferred_sr; bootable = false; _type = `system } in
-		let (_: API.ref_VM) =
+		lwt (_: ref_VM) =
 			find_or_create_template 
 			{ (blank_template (default_memory_parameters 128L)) with
 				vM_name_label = name_label;
@@ -341,7 +337,7 @@ let demo_xgt_template rpc session_id name_label short_name_label demo_xgt_name p
 					install_methods_otherconfig_key, ""
 				]
 			} rpc session_id in
-			()
+			Lwt.return ()
 	end
 
 
@@ -540,7 +536,7 @@ let sles10_template name architecture ?(is_experimental=false) flags =
 
 let sles11_template = sles10_template
 
-let debian_template name release architecture ?(supports_cd=true) ?(is_experimental=false) ?(max_mem_gib=32) ?(max_vcpus=16) flags =
+let debian_template name release architecture ?(supports_cd=true) ?(is_experimental=false) ?(max_mem_gib=32) ?(max_vcpus=16) ?(cmdline="-- quiet console=hvc0") flags =
 	let maximum_supported_memory_gib = match architecture with
 		| X32 -> max_mem_gib
 		| X64_debianlike -> max_mem_gib
@@ -548,7 +544,7 @@ let debian_template name release architecture ?(supports_cd=true) ?(is_experimen
 	in
 	let name = make_long_name name architecture is_experimental in
 	let install_arch = technical_string_of_architecture architecture in
-	let bt = eli_install_template (default_memory_parameters 128L) name "debianlike" false "-- quiet console=hvc0" in
+	let bt = eli_install_template (default_memory_parameters 128L) name "debianlike" false cmdline in
 	let methods = if supports_cd then "cdrom,http,ftp" else "http,ftp" in
 	{ bt with 
 		vM_other_config = (install_methods_otherconfig_key, methods) :: ("install-arch", install_arch) :: ("debian-release", release) :: bt.vM_other_config;
@@ -600,17 +596,15 @@ let create_all_templates rpc session_id =
 		sles11_template    "SUSE Linux Enterprise Server 11"     X64 [    ];
 		sles11_template    "SUSE Linux Enterprise Server 11 SP1" X64 [    ];
 
-		debian_template "Debian Squeeze 6.0" "squeeze" X32 [    ];
-		debian_template "Debian Squeeze 6.0" "squeeze" X64_debianlike [    ];
+		debian_template "Debian Squeeze 6.0" "squeeze" X32 ~max_vcpus:32 [    ];
+		debian_template "Debian Squeeze 6.0" "squeeze" X64_debianlike ~max_mem_gib:70 ~max_vcpus:128 [    ];
 		debian_template "Ubuntu Lucid Lynx 10.04" "lucid" X32 ~supports_cd:false [    ];
 		debian_template "Ubuntu Lucid Lynx 10.04" "lucid" X64_debianlike ~supports_cd:false [    ];
 
 		debian_template "Ubuntu Maverick Meerkat 10.10" "maverick" X32 ~supports_cd:false ~is_experimental:true [    ];
 		debian_template "Ubuntu Maverick Meerkat 10.10" "maverick" X64_debianlike ~supports_cd:false ~is_experimental:true [    ];
-		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X32 ~max_vcpus:8 [    ];
+		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X32 ~max_mem_gib:48 ~max_vcpus:8 ~cmdline:"-- quiet console=hvc0 d-i:base-installer/kernel/image=linux-generic-pae" [    ];
 		debian_template "Ubuntu Precise Pangolin 12.04" "precise" X64_debianlike ~max_mem_gib:128 ~max_vcpus:128 [    ];
-
-		sdk_install_template
 	] in
 
 	let hvm_static_templates =
@@ -636,7 +630,7 @@ let create_all_templates rpc session_id =
 		hvm_template "Windows Server 2008"        X64  512 24 [n;x;v;] "0002";
 		hvm_template "Windows Server 2008 R2"     X64  512 24 [n;  v;] "0002";
 		hvm_template "Windows Server 2008 R2"     X64  512 24 [n;x;v;] "0002";
-		hvm_template "Windows Server 2012"     	  X64 ~is_experimental:true 1024 24 [n;  v;] "0002";
+		hvm_template "Windows Server 2012"     	  X64 ~is_experimental:true 1024 24 [n;  v;  s;] "0002";
 		hvm_template "Solaris 10"                 X64_sol ~is_experimental:true 1024 24 [n;    ] "";
 	] in
 
@@ -649,11 +643,11 @@ let create_all_templates rpc session_id =
 		List.map (fun t -> {t with vM_other_config = default_template::linux_template::t.vM_other_config}) linux_static_templates in
 
 	(* Create the HVM templates *)
-	List.iter (fun x -> ignore(find_or_create_template x rpc session_id)) hvm_static_templates;
+	lwt () = Lwt_list.iter_p (fun x -> lwt _ = find_or_create_template x rpc session_id in Lwt.return ()) hvm_static_templates in
 
 	(* NB we now create the 'static' linux templates whether or not the 'linux pack' is 
 	   installed because these only depend on eliloader, which is always installed *)
-	List.iter (fun x -> ignore(find_or_create_template x rpc session_id)) linux_static_templates;
+        lwt () = Lwt_list.iter_p (fun x -> lwt _ = find_or_create_template x rpc session_id in Lwt.return ()) linux_static_templates in
 
 	(* The remaining template-creation functions determine whether they have the 
 	necessary resources (ISOs, networks) or not: *)

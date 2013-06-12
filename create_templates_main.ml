@@ -12,15 +12,18 @@
  * GNU Lesser General Public License for more details.
  *)
 
-open Pervasiveext
-open Client
 
-let rpc xml =
-    let open Xmlrpc_client in
-    XML_protocol.rpc ~transport:(Unix "/var/xapi/xapi") ~http:(xmlrpc ~version:"1.0" "/") xml
+module X = Xen_api_lwt_unix
 
-let _ =
-    let session_id = Client.Session.login_with_password ~rpc ~uname:"" ~pwd:"" ~version:"1.0" in
-	finally
-		(fun () -> Create_templates.create_all_templates rpc session_id)
-		(fun () -> Client.Session.logout rpc session_id)
+let rpc =
+  let uri = Printf.sprintf "http://localhost/" in
+  let rpc = X.make uri in
+  rpc
+
+let main () =
+    lwt session_id = X.Session.login_with_password ~rpc ~uname:"root" ~pwd:"Qx9xbs0v" ~version:"1.0" in
+    lwt () = Create_templates.create_all_templates rpc session_id in
+    X.Session.logout rpc session_id
+
+let _ = 
+    Lwt_main.run (main ())

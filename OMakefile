@@ -6,11 +6,11 @@ FIRSTBOOT=$(DESTDIR)/etc/firstboot.d
 
 IEXE=install -m 755 -o root -g root
 
-OCAMLPACKS = xapi-client threads
+OCAMLPACKS = xmlm xen-api-client stdext log threads xml-light2 lwt lwt.syntax
 
-OCAMLFLAGS = -g -dtypes -thread -warn-error +a-4-6-9-27-28-29
+OCAMLFLAGS = -g -dtypes -thread -warn-error +a-4-6-9-27-28-29 -syntax camlp4o
 OCAMLCFLAGS = -g
-OCAMLOPTFLAGS = -ccopt -fPIC
+OCAMLOPTFLAGS = -ccopt -fPIC 
 CFLAGS=-g -O2 -DPLATFORM_UNIX -DOS_LINUX -g -DDEBUG -I$(shell ocamlc -where)
 USE_OCAMLFIND = true
 NATIVE_ENABLED = true

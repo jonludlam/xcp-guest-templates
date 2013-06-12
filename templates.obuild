@@ -1,0 +1,11 @@
+name: xe-create-templates
+version: 0.9.0
+synopsis: Create default templates
+obuild-ver: 1
+
+executable xe-create-templates
+  main: create_templates_main.ml
+  src-dir: .
+  build-deps: xmlm, xen-api-client, xen-api-client.lwt, stdext, log, threads, xml-light2, lwt, lwt.syntax, lwt.unix
+  pp: camlp4o
+

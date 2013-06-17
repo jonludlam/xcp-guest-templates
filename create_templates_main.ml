@@ -15,12 +15,14 @@
 
 module X = Xen_api_lwt_unix
 
-let rpc =
-  let uri = Printf.sprintf "http://localhost/" in
-  let rpc = X.make uri in
-  rpc
-
 let main () =
+    let uri = ref "file:///var/lib/xcp/xapi" in
+    Arg.parse [
+        "-uri", Arg.Set_string uri, "URI to connect to xapi";
+        ] (fun x -> Printf.fprintf stderr "Ignoring: %s" x)
+    "Create the default set of templates";
+
+    let rpc = X.make !uri in
     lwt session_id = X.Session.login_with_password ~rpc ~uname:"root" ~pwd:"Qx9xbs0v" ~version:"1.0" in
     lwt () = Create_templates.create_all_templates rpc session_id in
     X.Session.logout rpc session_id

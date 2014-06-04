@@ -18,7 +18,7 @@
 let never = "19700101T00:00:00Z"
 open API
 
-open Stringext
+open Xstringext
 module X = Xen_api_lwt_unix
 
 module Ref = struct
